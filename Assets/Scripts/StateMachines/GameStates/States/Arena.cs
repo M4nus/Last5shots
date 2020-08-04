@@ -2,6 +2,8 @@
 
 public class Arena : State
 {
+    public PlayerController playerController;
+
     public Arena(GameState gameState) : base(gameState)
     {
 
@@ -14,7 +16,6 @@ public class Arena : State
 
     public override void OnStateEnter()
     {
-
     }
 
     public override void OnStateExit()
