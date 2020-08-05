@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
 public enum PlayerType
 {
@@ -18,12 +19,17 @@ public class PlayerController : MonoBehaviour, InputMaster.IPlayerActions
     [SerializeField] private int maxBulletCount = 5;
 
     private InputMaster inputControls;
+    private ParticleContainer pc;
     private GameObject James;
     private GameObject John;
     private Rigidbody rbJames;
     private Rigidbody rbJohn;
     private Vector2 direction;
-    private List<GameObject> bullets = new List<GameObject>();
+    public List<GameObject> bullets = new List<GameObject>();
+    public UnityAction onRewind;
+
+    ParticleSystem electricity;
+    ParticleSystem laserSpawn;
 
     #region Declaration
 
@@ -38,15 +44,18 @@ public class PlayerController : MonoBehaviour, InputMaster.IPlayerActions
 
         James = GameObject.FindGameObjectWithTag("James");
         John = GameObject.FindGameObjectWithTag("John");
+        pc = GameObject.FindGameObjectWithTag("GameManager").GetComponent<ParticleContainer>();
 
         if(James != null)
             rbJames = James.GetComponent<Rigidbody>();
         if(John != null)
             rbJohn = John.GetComponent<Rigidbody>();
+        
     }
 
     void OnDisable()
     {
+        pc.rewind.Play();
         inputControls.Disable();
     }
 
@@ -90,8 +99,21 @@ public class PlayerController : MonoBehaviour, InputMaster.IPlayerActions
     {
         if(context.performed)
         {
-            if(playerType == PlayerType.James && bullets.Count >= 0)
+            if(playerType == PlayerType.James && bullets.Count >= 1)
             {
+                GameObject rewind = ObjectPooler.sharedInstance.GetPooledObject("Rewind");
+                if(rewind != null)
+                {
+                    rewind.transform.position = bullets[bullets.Count - 1].transform.position;
+                    rewind.transform.rotation = bullets[bullets.Count - 1].transform.rotation;
+                    rewind.SetActive(true);
+                    var shRewind = rewind.GetComponent<ParticleSystem>().shape;
+                    shRewind.scale = new Vector3(bullets[bullets.Count - 1].transform.localScale.x / 10f, 0.1f, 0.1f);
+                }
+
+                if(GameObject.FindGameObjectsWithTag("RedBullet").Length > 0)
+                    onRewind.Invoke();
+
                 bullets[bullets.Count - 1].SetActive(false);
                 bullets.RemoveAt(bullets.Count - 1);
             }
@@ -144,34 +166,56 @@ public class PlayerController : MonoBehaviour, InputMaster.IPlayerActions
         RaycastHit hit;
         if(Physics.Raycast(bulletSpawnPoint.transform.position, transform.TransformDirection(-Vector3.forward), out hit, Mathf.Infinity, layerMask))
         {
-            GameObject bullet = ObjectPooler.sharedInstance.GetPooledObject();
+            GameObject bullet = ObjectPooler.sharedInstance.GetPooledObject("BlueBullet");
             if(bullet != null)
             {
-                bullet.transform.position = (James.transform.position + hit.point) / 2;
+                bullet.transform.position = (bulletSpawnPoint.transform.position + hit.point) / 2;
                 bullet.transform.rotation = transform.rotation;
                 bullet.transform.rotation *= Quaternion.Euler(0, 90f, 0);
                 bullet.SetActive(true);
                 bullets.Add(bullet);
                 NewScale(bullet, hit.distance);
+                ParticleShape(bullet);
             }
-        }
-        else
-        {
-            Debug.DrawRay(transform.position, transform.TransformDirection(-Vector3.forward) * 1000, Color.white);
-            Debug.Log("Did not Hit ");
+            GameObject hitExplosion = ObjectPooler.sharedInstance.GetPooledObject("HitExplosion");
+            if(hitExplosion != null)
+            {
+                hitExplosion.transform.position = hit.point;
+                hitExplosion.transform.rotation = Quaternion.identity;
+                hitExplosion.SetActive(true);
+            }
+            if(hit.collider.gameObject.tag != "BlueBullet")
+            {
+                GameObject wallMark = ObjectPooler.sharedInstance.GetPooledObject("WallMark");
+                if(wallMark != null)
+                {
+                    wallMark.transform.position = hit.point + Vector3.forward * 0f;
+                    wallMark.transform.rotation = Quaternion.LookRotation(hit.normal);
+                    wallMark.SetActive(true);
+                }
+            }
         }
     }
 
     public void NewScale(GameObject theGameObject, float newSize)
     {
+        theGameObject.transform.localScale = new Vector3((newSize + 0.1f) * 10f, 1f, 1f);
+    }
 
-        float size = theGameObject.GetComponentInChildren<Renderer>().bounds.size.x;
+    public void ParticleShape(GameObject parent)
+    {
+        electricity = parent.GetComponentsInChildren<ParticleSystem>()[0];
+        laserSpawn = parent.GetComponentsInChildren<ParticleSystem>()[1];
+        var shElectricity = electricity.shape;
+        var shLaser = laserSpawn.shape;
 
-        Vector3 rescale = theGameObject.transform.localScale;
+        shElectricity.scale = new Vector3(parent.transform.localScale.x / 10f, 0.2f, 0.2f);
+        shLaser.scale = new Vector3(parent.transform.localScale.x / 10f, 0.2f, 0.2f);
+    }
 
-        rescale.x = newSize * rescale.x / size;
-
-        theGameObject.transform.localScale = rescale;
+    public void OnPoint(InputAction.CallbackContext context)
+    {
+        throw new System.NotImplementedException();
     }
 
     #endregion

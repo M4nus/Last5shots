@@ -6,6 +6,15 @@ TagManager:
   tags:
   - James
   - John
+  - GameManager
+  - BlueBullet
+  - RedBullet
+  - Rewind
+  - HitExplosion
+  - WallMark
+  - RewindRed
+  - Prisoner
+  - DeathParticles
   layers:
   - Default
   - TransparentFX
@@ -19,9 +28,9 @@ TagManager:
   - Walls
   - James
   - John
-  - 
-  - 
-  - 
+  - Good
+  - Evil
+  - Enemy
   - 
   - 
   - 
