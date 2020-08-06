@@ -1,25 +1,26 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameState : MonoBehaviour
 {
     private State currentState;
+    public GameObject James;
+    public GameObject deathScreen;
+    
 
-    //private PlayerController playerController;
-    //private Rigidbody rbJames;
-
-    private void Start()
+    private void Awake()
     {
-        SetState(new Arena(this));
+        if(SceneManager.GetSceneByName("Menu") == SceneManager.GetActiveScene())
+            SetState(new Menu(this));
+        else if(SceneManager.GetSceneByName("Arena") == SceneManager.GetActiveScene())
+            SetState(new Arena(this));
 
-        //playerController = GameObject.FindGameObjectWithTag("James").GetComponent<PlayerController>();
-        //rbJames = GameObject.FindGameObjectWithTag("James").GetComponent<Rigidbody>();
+        //DontDestroyOnLoad(gameObject);
     }
 
     private void Update()
     {
         currentState.Tick();
-
-        //playerController.RotatePlayer(rbJames);
     }
 
     public void SetState(State state)
@@ -30,6 +31,8 @@ public class GameState : MonoBehaviour
         currentState = state;
 
         if(currentState != null)
+        {
             currentState.OnStateEnter();
+        }
     }
 }

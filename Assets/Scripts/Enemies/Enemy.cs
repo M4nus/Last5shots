@@ -68,18 +68,18 @@ public class Enemy : MonoBehaviour
 
     public IEnumerator MoveAI(Vector3 destination)
     {
-        do
+        //do
         {
             agent.SetDestination(destination);
             yield return null;
-        } while(Vector3.Distance(agent.transform.position, RandomNavmeshLocation(15f)) > Random.RandomRange(0f, 2f));
+        } //while(Vector3.Distance(agent.transform.position, RandomNavmeshLocation(15f)) > Random.RandomRange(0f, 2f));
     }
 
     public IEnumerator CheckForPlayer()
     {
-        if(Vector3.Distance(transform.position, James.transform.position) < 6f)
+        if(Vector3.Distance(transform.position, James.transform.position) < 4f)
         {
-            yield return new WaitForSeconds(shootDelay);
+            yield return new WaitForSeconds(1f);
             yield return StartCoroutine(Shoot());
             yield return new WaitForSeconds(shootDelay);
             yield return StartCoroutine(MoveAI(RandomNavmeshLocation(10f)));
@@ -96,10 +96,10 @@ public class Enemy : MonoBehaviour
         int layerMask = 1 << 14;
         layerMask = ~layerMask;
 
-        transform.LookAt(James.transform.position);
+        //transform.LookAt(James.transform.position);
 
         RaycastHit hit;
-        if(Physics.Raycast(bulletSpawnPoint.transform.position, transform.TransformDirection(-Vector3.forward), out hit, Mathf.Infinity, layerMask))
+        if(Physics.Raycast(bulletSpawnPoint.transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity, layerMask))
         {
             GameObject bullet = ObjectPooler.sharedInstance.GetPooledObject("RedBullet");
             if(bullet != null)

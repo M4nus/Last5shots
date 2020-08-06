@@ -1,0 +1,25 @@
+fileFormatVersion: 2
+guid: 731af6d5996329c479936c967f617754
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Stickman
+  fontNames:
+  - Stickman
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 237fce508aae64948ae5c91b5b4e5b05, type: 3}
+  - {fileID: 12800000, guid: 025ecf31fd0e9e04f80b1951b18cffb8, type: 3}
+  - {fileID: 12800000, guid: 13a8854ea788db14582244f7088a81ad, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

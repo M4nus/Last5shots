@@ -6,12 +6,14 @@ public class LaserTrigger : MonoBehaviour
 {
     private List<GameObject> bulletsHitted = new List<GameObject>();
     private PlayerController playerController;
+    private AudioSource laserSpawn;
 
     private void OnEnable()
     {
         playerController = GameObject.FindGameObjectWithTag("James").GetComponent<PlayerController>();
+        laserSpawn = GetComponent<AudioSource>();
+        laserSpawn.Play();
         playerController.onRewind += DisableColliding;
-
     }
 
     private void OnDisable()
@@ -28,7 +30,9 @@ public class LaserTrigger : MonoBehaviour
         }
         if(collision.gameObject.layer == LayerMask.NameToLayer("James"))
         {
-            Destroy(collision.gameObject);
+            collision.gameObject.SetActive(false);
+            if(playerController.onJamesDeath != null)
+                playerController.onJamesDeath.Invoke();
         }
     }
 

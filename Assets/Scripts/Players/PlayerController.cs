@@ -12,6 +12,8 @@ public enum PlayerType
 
 public class PlayerController : MonoBehaviour, InputMaster.IPlayerActions
 {
+    public static PlayerController instance;
+
     [SerializeField] private PlayerType playerType = new PlayerType();
     [SerializeField] private GameObject bulletSpawnPoint;
     [SerializeField] private Camera camera;
@@ -27,11 +29,30 @@ public class PlayerController : MonoBehaviour, InputMaster.IPlayerActions
     private Vector2 direction;
     public List<GameObject> bullets = new List<GameObject>();
     public UnityAction onRewind;
+    public UnityAction onJamesDeath;
+    public CameraShake cameraShake;
 
     ParticleSystem electricity;
     ParticleSystem laserSpawn;
 
+     AudioSource audioClip;
+    AudioSource rewindClip;
+
     #region Declaration
+
+    void Awake()
+    {
+        if(instance != null)
+            Destroy(gameObject);
+        else
+            instance = this;
+    }
+
+    void Start()
+    {
+        audioClip = GameObject.FindGameObjectWithTag("GameManager").GetComponent<AudioSource>();
+        rewindClip = GetComponent<AudioSource>();
+    }
 
     void OnEnable()
     {
@@ -50,6 +71,9 @@ public class PlayerController : MonoBehaviour, InputMaster.IPlayerActions
             rbJames = James.GetComponent<Rigidbody>();
         if(John != null)
             rbJohn = John.GetComponent<Rigidbody>();
+
+        onRewind += null;
+        onJamesDeath += null;
         
     }
 
@@ -87,6 +111,8 @@ public class PlayerController : MonoBehaviour, InputMaster.IPlayerActions
             if(playerType == PlayerType.James && maxBulletCount >= bullets.Count)
             {
                 CheckForCollision();
+                audioClip.Play();
+                StartCoroutine(cameraShake.Shake(0.1f, 0.1f));
             }
             else if(playerType == PlayerType.John)
             {
@@ -111,7 +137,7 @@ public class PlayerController : MonoBehaviour, InputMaster.IPlayerActions
                     shRewind.scale = new Vector3(bullets[bullets.Count - 1].transform.localScale.x / 10f, 0.1f, 0.1f);
                 }
 
-                if(GameObject.FindGameObjectsWithTag("RedBullet").Length > 0)
+                if(GameObject.FindGameObjectsWithTag("RedBullet").Length > 0 && onRewind != null)
                     onRewind.Invoke();
 
                 bullets[bullets.Count - 1].SetActive(false);
@@ -121,6 +147,8 @@ public class PlayerController : MonoBehaviour, InputMaster.IPlayerActions
             {
                 Debug.Log("John Rewind!");
             }
+            rewindClip.Play();
+            StartCoroutine(cameraShake.Shake(0.04f, 0.04f));
         }
     }
 
