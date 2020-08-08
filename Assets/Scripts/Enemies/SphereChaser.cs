@@ -22,6 +22,7 @@ public class SphereChaser : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        sphereExplosion.Play();
         if(collision.gameObject.layer == LayerMask.NameToLayer("Good"))
         {
             GameObject deathParticles = ObjectPooler.sharedInstance.GetPooledObject("DeathParticles");
@@ -31,25 +32,28 @@ public class SphereChaser : MonoBehaviour
                 deathParticles.transform.rotation = gameObject.transform.rotation;
                 deathParticles.SetActive(true);
             }
-            gameObject.SetActive(false);
-
-            GameObject sphereChaser = ObjectPooler.sharedInstance.GetPooledObject("SphereChaser");
-            if(sphereChaser != null)
-            {
-                sphereChaser.transform.position = RandomNavmeshLocation(30);
-                sphereChaser.transform.rotation = gameObject.transform.rotation;
-                sphereChaser.SetActive(true);
-            }
+            gameObject.SetActive(false); 
 
             foreach(GameObject bullet in pc.bullets)
             {
                 if(collision.gameObject.GetInstanceID() == bullet.GetInstanceID() - 4)
                 {
+                    if(LaserIndicator.instance.onLaserRestored != null)
+                        LaserIndicator.instance.onLaserRestored.Invoke();
+
                     bullet.SetActive(false);
                     pc.bullets.Remove(bullet);
 
                     break;
                 }
+            }
+
+            GameObject enemy = ObjectPooler.sharedInstance.GetPooledObject("SphereChaser");
+            if(enemy != null)
+            {
+                enemy.transform.position = RandomNavmeshLocation(20);
+                enemy.transform.rotation = gameObject.transform.rotation;
+                enemy.SetActive(true);
             }
         }
 
@@ -59,7 +63,6 @@ public class SphereChaser : MonoBehaviour
             if(pc.onJamesDeath != null)
                 pc.onJamesDeath.Invoke();
         }
-        sphereExplosion.Play();
     }
 
 

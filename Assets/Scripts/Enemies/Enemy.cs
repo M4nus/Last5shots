@@ -6,6 +6,7 @@ public class Enemy : MonoBehaviour
 {
     NavMeshAgent agent;
     GameObject James;
+    AudioSource sphereExplosion;
 
     public GameObject bulletSpawnPoint;
 
@@ -17,6 +18,7 @@ public class Enemy : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         James = GameObject.FindGameObjectWithTag("James");
+        sphereExplosion = GetComponent<AudioSource>();
         StartCoroutine(ControlAI());
     }
 
@@ -31,6 +33,7 @@ public class Enemy : MonoBehaviour
                 deathParticles.transform.rotation = gameObject.transform.rotation;
                 deathParticles.SetActive(true);
             }
+            sphereExplosion.Play();
             gameObject.SetActive(false);
 
             GameObject prisoner = ObjectPooler.sharedInstance.GetPooledObject("Prisoner");

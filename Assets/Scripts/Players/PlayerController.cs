@@ -113,6 +113,8 @@ public class PlayerController : MonoBehaviour, InputMaster.IPlayerActions
                 CheckForCollision();
                 audioClip.Play();
                 StartCoroutine(cameraShake.Shake(0.1f, 0.1f));
+                if(LaserIndicator.instance.onLaserUsed != null)
+                    LaserIndicator.instance.onLaserUsed.Invoke();
             }
             else if(playerType == PlayerType.John)
             {
@@ -149,6 +151,8 @@ public class PlayerController : MonoBehaviour, InputMaster.IPlayerActions
             }
             rewindClip.Play();
             StartCoroutine(cameraShake.Shake(0.04f, 0.04f));
+            if(LaserIndicator.instance.onLaserRestored != null)
+                LaserIndicator.instance.onLaserRestored.Invoke();
         }
     }
 
